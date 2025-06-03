@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.4.xsd">
+    <!-- 示例：排除特定组件的漏洞 -->
+    <suppress>
+        <notes><![CDATA[
+            此依赖中的漏洞不影响本项目
+            原因：漏洞仅在特定配置下触发，而本项目未使用该配置
+        ]]></notes>
+        <packageUrl regex="true">pkg:maven/com.example/.*</packageUrl>
+        <cve>CVE-2021-XXXX</cve>
+    </suppress>
+</suppressions>

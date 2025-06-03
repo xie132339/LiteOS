@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.example</groupId>
+    <artifactId>sbom</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>sbom</name>
+    <description>Demo project for Spring Boot</description>
+    <properties>
+        <java.version>21</java.version>
+        <dependency-track-maven-plugin.version>1.10.0</dependency-track-maven-plugin.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+
+
+
+    <build>
+      <!--  <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.github.pmckeown</groupId>
+                    <artifactId>dependency-track-maven-plugin</artifactId>
+                    <version>${dependency-track-maven-plugin.version}</version>
+                    <configuration>
+                        <dependencyTrackBaseUrl>http://localhost:8081</dependencyTrackBaseUrl>
+                        <apiKey>odt_EHu8UP1a_3WvE8y3ftfUWd8OkfgkZ8TAieVt6clnF</apiKey>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>-->
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.14.0</version>
+                <configuration>
+                    <release>21</release>
+                    <source>21</source>    <!-- 可选，与release一致 -->
+                    <target>21</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.cyclonedx</groupId>
+                <artifactId>cyclonedx-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-bom</id>
+                        <phase>package</phase> <!-- 在package阶段生成SBOM -->
+                        <goals>
+                            <goal>makeBom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputFormat>xml</outputFormat>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>io.github.pmckeown</groupId>
+                <artifactId>dependency-track-maven-plugin</artifactId>
+                <version>${dependency-track-maven-plugin.version}</version>
+                <inherited>false</inherited>
+                <configuration>
+                    <dependencyTrackBaseUrl>http://localhost:8081</dependencyTrackBaseUrl>
+                    <apiKey>odt_EHu8UP1a_3WvE8y3ftfUWd8OkfgkZ8TAieVt6clnF</apiKey>
+                    <pollingConfig>
+                        <enabled>false</enabled>
+                        <pause>500</pause>
+                        <attempts>40</attempts>
+                        <timeUnit>MILLIS</timeUnit>
+                    </pollingConfig>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>8.4.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- 指定输出格式：ALL | HTML | XML | JSON | CSV | JUNIT | SARIF | CYCLONEDX | SPDX -->
+                    <format>ALL</format>  <!-- 单独的format标签 -->
+
+                    <failBuildOnCVSS>7</failBuildOnCVSS> <!-- CVSS评分≥7时构建失败 -->
+                    <!--            <suppressionFiles>
+                                    <suppressionFile>dependency-suppression.xml</suppressionFile>
+                                </suppressionFiles>-->
+                </configuration>
+            </plugin>
+        </plugins>
+
+    </build>
+
+</project>
