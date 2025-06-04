@@ -1,0 +1,79 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: Building and testing Java with Maven - GitHub Docs
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Java CI with Maven
+
+on:
+  push:
+    tags:
+      - 'v*'
+  #push 进行workflow
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven
+      run: mvn clean package
+      #run: mvn -B package --file pom.xml
+    - name: Upload JAR to MinIO
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+        MINIO_ENDPOINT: ${{ secrets.MINIO_ADDRESS }}
+        S3_BUCKET: 'snb-java-demo'
+      run: |
+        set -e
+
+        # 获取当前日期作为文件夹名
+        BASE_FOLDER=$(date +%F)  # 2025-05-30
+        FOLDER_NAME="$BASE_FOLDER"
+        COUNTER=0
+
+        # 循环查找可用的目录名
+        while aws s3 ls "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT" | grep -q .; do
+          COUNTER=$((COUNTER + 1))
+          FOLDER_NAME="${BASE_FOLDER}_$COUNTER"
+        done
+
+        echo "Using folder: $FOLDER_NAME"
+
+        ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
+        ARTIFACT2=$(find target -name "sbom-*.jar" | head -n 1)
+
+        echo "Uploading $ARTIFACT1 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
+        aws s3 cp "$ARTIFACT1" "s3://$S3_BUCKET/" --endpoint-url "$MINIO_ENDPOINT"
+
+        echo "Uploading $ARTIFACT2 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
+        aws s3 cp "$ARTIFACT2" "s3://$S3_BUCKET/" --endpoint-url "$MINIO_ENDPOINT"
+
+        ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
+        ARTIFACT2=$(find target -name "sbom-*.jar" | head -n 1)
+
+        echo "Uploading $ARTIFACT1 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
+        aws s3 cp "$ARTIFACT1" "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT"
+
+        echo "Uploading $ARTIFACT2 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
+        aws s3 cp "$ARTIFACT2" "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT"
+
+    # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
+    # - name: Update dependency graph
+    #   uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
