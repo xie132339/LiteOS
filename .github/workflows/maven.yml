@@ -57,7 +57,7 @@ jobs:
         echo "Using folder: $FOLDER_NAME"
 
         ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
-        ARTIFACT2=$(find target -name "sbom-*.jar" | head -n 1)
+        ARTIFACT2=$(find target -name "*.jar" | head -n 1)
 
         echo "Uploading $ARTIFACT1 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
         aws s3 cp "$ARTIFACT1" "s3://$S3_BUCKET/" --endpoint-url "$MINIO_ENDPOINT"
@@ -66,7 +66,7 @@ jobs:
         aws s3 cp "$ARTIFACT2" "s3://$S3_BUCKET/" --endpoint-url "$MINIO_ENDPOINT"
 
         ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
-        ARTIFACT2=$(find target -name "sbom-*.jar" | head -n 1)
+        ARTIFACT2=$(find target -name "*.jar" | head -n 1)
 
         echo "Uploading $ARTIFACT1 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
         aws s3 cp "$ARTIFACT1" "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT"
