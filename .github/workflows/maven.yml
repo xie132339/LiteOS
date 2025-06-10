@@ -53,45 +53,46 @@ jobs:
         
         which snb || echo "snb not found in PATH"
         snb --version || echo "snb installed successfully"
-    - name: Upload JAR to MinIO
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
-        MINIO_ENDPOINT: ${{ secrets.MINIO_ADDRESS }}
-        S3_BUCKET: 'snb-java-demo'
-      run: |
-        set -e
-
-        # 获取当前日期作为文件夹名
-        BASE_FOLDER=$(date +%F)  # 2025-05-30
-        FOLDER_NAME="$BASE_FOLDER"
-        COUNTER=0
-
-        # 循环查找可用的目录名
-        while aws s3 ls "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT" | grep -q .; do
-          COUNTER=$((COUNTER + 1))
-          FOLDER_NAME="${BASE_FOLDER}_$COUNTER"
-        done
-
-        echo "Using folder: $FOLDER_NAME"
-
-        ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
-        ARTIFACT2=$(find target -name "*.jar" | head -n 1)
-
-        echo "Uploading $ARTIFACT1 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
-        aws s3 cp "$ARTIFACT1" "s3://$S3_BUCKET/" --endpoint-url "$MINIO_ENDPOINT"
-
-        echo "Uploading $ARTIFACT2 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
-        aws s3 cp "$ARTIFACT2" "s3://$S3_BUCKET/" --endpoint-url "$MINIO_ENDPOINT"
-
-        ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
-        ARTIFACT2=$(find target -name "*.jar" | head -n 1)
-
-        echo "Uploading $ARTIFACT1 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
-        aws s3 cp "$ARTIFACT1" "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT"
-
-        echo "Uploading $ARTIFACT2 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
-        aws s3 cp "$ARTIFACT2" "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT"
+        snb sbom push --inApplication LiteOS-0.0.1-SNAPSHOT.jar --inSBOM bom.xml --inApplicationVersion 2.0.0 --inApplicationSignature 30820000 --inEncryptionCert LiteOS-0.0.1-SNAPSHOT.jar
+#    - name: Upload JAR to MinIO
+#      env:
+#        AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
+#        AWS_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_KEY }}
+#        MINIO_ENDPOINT: ${{ secrets.MINIO_ADDRESS }}
+#        S3_BUCKET: 'snb-java-demo'
+#      run: |
+#        set -e
+#
+#        # 获取当前日期作为文件夹名
+#        BASE_FOLDER=$(date +%F)  # 2025-05-30
+#        FOLDER_NAME="$BASE_FOLDER"
+#        COUNTER=0
+#
+#        # 循环查找可用的目录名
+#        while aws s3 ls "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT" | grep -q .; do
+#          COUNTER=$((COUNTER + 1))
+#          FOLDER_NAME="${BASE_FOLDER}_$COUNTER"
+#        done
+#
+#        echo "Using folder: $FOLDER_NAME"
+#
+#        ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
+#        ARTIFACT2=$(find target -name "*.jar" | head -n 1)
+#
+#        echo "Uploading $ARTIFACT1 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
+#        aws s3 cp "$ARTIFACT1" "s3://$S3_BUCKET/" --endpoint-url "$MINIO_ENDPOINT"
+#
+#        echo "Uploading $ARTIFACT2 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
+#        aws s3 cp "$ARTIFACT2" "s3://$S3_BUCKET/" --endpoint-url "$MINIO_ENDPOINT"
+#
+#        ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
+#        ARTIFACT2=$(find target -name "*.jar" | head -n 1)
+#
+#        echo "Uploading $ARTIFACT1 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
+#        aws s3 cp "$ARTIFACT1" "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT"
+#
+#        echo "Uploading $ARTIFACT2 to $S3_BUCKET via MinIO endpoint $MINIO_ENDPOINT"
+#        aws s3 cp "$ARTIFACT2" "s3://$S3_BUCKET/$FOLDER_NAME/" --endpoint-url "$MINIO_ENDPOINT"
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
