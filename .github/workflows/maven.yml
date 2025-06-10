@@ -53,7 +53,11 @@ jobs:
         
         which snb || echo "snb not found in PATH"
         snb --version || echo "snb installed successfully"
-        snb sbom push --inApplication LiteOS-0.0.1-SNAPSHOT.jar --inSBOM bom.xml --inApplicationVersion 2.0.0 --inApplicationSignature 30820000 --inEncryptionCert LiteOS-0.0.1-SNAPSHOT.jar
+        
+        ARTIFACT1=$(find target -name "bom.xml" | head -n 1)
+        ARTIFACT2=$(find target -name "*.jar" | head -n 1)
+        
+        snb sbom push --inApplication ARTIFACT2 --inSBOM ARTIFACT1 --inApplicationVersion 2.0.0 --inApplicationSignature 30820000 --inEncryptionCert ARTIFACT2
 #    - name: Upload JAR to MinIO
 #      env:
 #        AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
