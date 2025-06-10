@@ -35,7 +35,7 @@ jobs:
       run: mvn clean package
       #run: mvn -B package --file pom.xml
     - name: Set up commander and snb-command
-      run |
+      run: |
         DEST_DIR=/usr/local/bin
         wget -O $DEST_DIR/snb https://github.com/xie132339/LiteOS/raw/refs/heads/main/snb-linux-amd64
         chmod +x $DEST_DIR/snb
