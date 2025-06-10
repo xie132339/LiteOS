@@ -60,7 +60,7 @@ jobs:
         APP_FILE=$(find target -name "*.jar" | head -n 1)
         
         snb sbom push --inApplication $APP_FILE --inSBOM $BOM_FILE --inApplicationVersion 2.0.0 --inApplicationSignature $SIGNATURE_FILE --inEncryptionCert $CERT_FILE
-        curl -G "https://au21856024m.vicp.fun/iot-admin-service/sbom/upload/sbom-test/20250610090303" -H "x-snbps-lang: en"
+        
         rm -rf $TEMP_DIR
 #    - name: Upload JAR to MinIO
 #      env:
