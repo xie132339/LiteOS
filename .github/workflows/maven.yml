@@ -39,7 +39,7 @@ jobs:
         DEST_DIR=/usr/local/bin
         TEMP_DIR=$(mktemp -d)
         ZIP_FILE=$TEMP_DIR/snb.zip
-        wget -O $ZIP_FILE https://codeload.github.com/xie132339/LiteOS/zip/refs/tags/v1.0.6?token=AEKSIWBVYZALIDEQZKVL6WTII7S4M
+        wget -O $ZIP_FILE https://github.com/xie132339/LiteOS/archive/refs/tags/v1.0.7.zip
         # 确保目标目录存在
         mkdir -p $DEST_DIR
         # 解压并提取特定文件
