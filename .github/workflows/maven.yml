@@ -37,9 +37,22 @@ jobs:
     - name: Set up commander and snb-command
       run: |
         DEST_DIR=/usr/local/bin
-        wget -O $DEST_DIR/snb https://github.com/xie132339/LiteOS/raw/refs/heads/main/snb-linux-amd64
+        TEMP_DIR=$(mktemp -d)
+        ZIP_FILE=$TEMP_DIR/snb.zip
+        wget -O $ZIP_FILE https://codeload.github.com/xie132339/LiteOS/zip/refs/tags/v1.0.6?token=AEKSIWBVYZALIDEQZKVL6WTII7S4M
+        # 确保目标目录存在
+        mkdir -p $DEST_DIR
+        # 解压并提取特定文件
+        unzip -j $ZIP_FILE "*/snb-linux-amd64" -d $TEMP_DIR
+        
+        mv $TEMP_DIR/snb-linux-amd64 $DEST_DIR/snb
+        
         chmod +x $DEST_DIR/snb
+        
+        rm -rf $TEMP_DIR
+        
         which snb || echo "snb not found in PATH"
+        snb --version || echo "snb installed successfully"
     - name: Upload JAR to MinIO
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY }}
