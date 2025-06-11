@@ -11,7 +11,7 @@ name: Java CI with Maven
 on:
   push:
     tags:
-      - 'v*'
+      - '*'
   #push 进行workflow
   # push:
   #   branches: [ "main" ]
