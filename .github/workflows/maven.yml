@@ -11,7 +11,7 @@ name: Java CI with Maven
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
   #push 进行workflow
   # push:
   #   branches: [ "main" ]
@@ -59,7 +59,12 @@ jobs:
         BOM_FILE=$(find target -name "bom.xml" | head -n 1)
         APP_FILE=$(find target -name "*.jar" | head -n 1)
         
-        snb sbom push --inApplication $APP_FILE --inSBOM $BOM_FILE --inApplicationVersion 2.0.0 --inApplicationSignature $SIGNATURE_FILE --inEncryptionCert $CERT_FILE
+        snb sbom push \
+          --inApplication $APP_FILE \
+          --inSBOM $BOM_FILE \
+          --inApplicationVersion "${{ github.ref_name }}" \
+          --inApplicationSignature $SIGNATURE_FILE 
+          --inEncryptionCert $CERT_FILE
         
         rm -rf $TEMP_DIR
 #    - name: Upload JAR to MinIO

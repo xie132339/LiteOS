@@ -1,0 +1,97 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: Building and testing Java with Maven - GitHub Docs
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Java CI with Maven
+
+on:
+  push:
+    tags:
+      - 'docker-*'
+  #push 进行workflow
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven
+      run: mvn clean package "-Dmaven.test.skip=true"
+    # 安装 Syft
+    - name: Install Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b $HOME/.local/bin
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    # 构建 Docker 镜像
+    - name: Build Docker image
+      run: |
+        # 设置镜像标签（使用 Git 标签）
+        IMAGE_TAG="liteos:${{ github.ref_name }}"
+        docker build -t $IMAGE_TAG .
+        
+        # 保存镜像标签供后续步骤使用
+        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+    # 使用 Syft 扫描 Docker 镜像并生成 SBOM
+    - name: Scan Docker image with Syft
+      run: |
+        # 扫描 Docker 镜像并生成 SBOM
+        syft scan docker:${{ env.IMAGE_TAG }} \
+          --name "LiteOS-Docker" \
+          --version "${{ github.ref_name }}" \
+          --output cyclonedx-xml=bom.xml
+
+        # 打印部分 SBOM 内容（可选）
+        echo "Docker image SBOM contents:"
+        head -n 20 docker-sbom.xml
+
+    - name: Set up commander and snb-command
+      run: |
+        DEST_DIR=/usr/local/bin
+        TEMP_DIR=$(mktemp -d)
+        ZIP_FILE=$TEMP_DIR/snb.zip
+        wget -O $ZIP_FILE https://github.com/xie132339/LiteOS/archive/refs/tags/v1.0.3.zip
+        # 确保目标目录存在
+        mkdir -p $DEST_DIR
+        # 解压并提取特定文件
+        unzip -j $ZIP_FILE "*/snb-linux-amd64" -d $TEMP_DIR
+        unzip -j $ZIP_FILE "*/appsignature.txt" -d $TEMP_DIR
+        unzip -j $ZIP_FILE "*/encryptioncert.txt" -d $TEMP_DIR
+        
+        SIGNATURE_FILE=$TEMP_DIR/appsignature.txt
+        CERT_FILE=$TEMP_DIR/encryptioncert.txt
+
+        mv $TEMP_DIR/snb-linux-amd64 $DEST_DIR/snb
+
+        chmod +x $DEST_DIR/snb
+        which snb || echo "snb not found in PATH"
+        snb --version || echo "snb installed successfully"
+        
+        BOM_FILE=$(find target -name "bom.xml" | head -n 1)
+        APP_FILE=$(find target -name "*.jar" | head -n 1)
+        
+        snb sbom push \
+          --inApplication ${{ env.IMAGE_TAG }} \
+          --inSBOM $BOM_FILE \
+          --inApplicationVersion "${{ github.ref_name }}" \
+          --inApplicationSignature $SIGNATURE_FILE 
+          --inEncryptionCert $CERT_FILE
+        
+        rm -rf $TEMP_DIR
