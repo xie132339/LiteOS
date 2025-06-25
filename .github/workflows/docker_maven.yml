@@ -46,14 +46,18 @@ jobs:
         IMAGE_TAG="liteos:${{ github.ref_name }}"
         docker build -t $IMAGE_TAG -f target/docker/Dockerfile .
         
-        # 保存镜像标签供后续步骤使用
+        # 保存镜像为tar文件（关键修复）
+        IMAGE_TAR="${IMAGE_TAG/:/-}.tar"
+        docker save -o $IMAGE_TAR $IMAGE_TAG
+        
         echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+        echo "IMAGE_TAR=$IMAGE_TAR" >> $GITHUB_ENV
 
     # 使用 Syft 扫描 Docker 镜像并生成 SBOM
     - name: Scan Docker image with Syft
       run: |
         # 扫描 Docker 镜像并生成 SBOM
-        syft scan docker:${{ env.IMAGE_TAG }} \
+        syft scan oci-archive:${{ env.IMAGE_TAR }} \
           --output cyclonedx-xml=bom.xml
 
         # 打印部分 SBOM 内容（可选）
@@ -88,7 +92,7 @@ jobs:
         BOM_FILE=$(find target -name "bom.xml" | head -n 1)
         
         snb sbom push \
-          --inApplication ${{ env.IMAGE_TAG }} \
+          --inApplication ${{ env.IMAGE_TAR }} \
           --inSBOM $BOM_FILE \
           --inApplicationVersion "${{ github.ref_name }}" \
           --inApplicationSignature $SIGNATURE_FILE \
