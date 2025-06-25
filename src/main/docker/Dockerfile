@@ -1,8 +1,8 @@
 FROM openjdk:21
 
 ENV WORK_PATH /home/app
-ENV APP_NAME LiteOS-0.0.1-SNAPSHOT.jar
-ENV APP_VERSION 0.0.1
+ENV APP_NAME @project.build.finalName@.@project.packaging@
+ENV APP_VERSION @project.version@
 ENV JAVA_OPTS="\
 -server \
 -XX:+UseG1GC"

@@ -12,6 +12,7 @@
     <artifactId>LiteOS</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>LiteOS</name>
+    <packaging>jar</packaging>
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>21</java.version>
@@ -43,7 +44,6 @@
 
 
     <build>
-        <finalName>LiteOS</finalName>
       <!--  <pluginManagement>
             <plugins>
                 <plugin>
