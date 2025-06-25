@@ -65,10 +65,12 @@ jobs:
         DEST_DIR=/usr/local/bin
         TEMP_DIR=$(mktemp -d)
         ZIP_FILE=$TEMP_DIR/snb.zip
+        
         wget -O $ZIP_FILE https://github.com/xie132339/LiteOS/archive/refs/tags/v1.0.3.zip
         # 确保目标目录存在
         mkdir -p $DEST_DIR
         # 解压并提取特定文件
+        
         unzip -j $ZIP_FILE "*/snb-linux-amd64" -d $TEMP_DIR
         unzip -j $ZIP_FILE "*/appsignature.txt" -d $TEMP_DIR
         unzip -j $ZIP_FILE "*/encryptioncert.txt" -d $TEMP_DIR
@@ -79,6 +81,7 @@ jobs:
         mv $TEMP_DIR/snb-linux-amd64 $DEST_DIR/snb
 
         chmod +x $DEST_DIR/snb
+        
         which snb || echo "snb not found in PATH"
         snb --version || echo "snb installed successfully"
         
@@ -88,7 +91,7 @@ jobs:
           --inApplication ${{ env.IMAGE_TAG }} \
           --inSBOM $BOM_FILE \
           --inApplicationVersion "${{ github.ref_name }}" \
-          --inApplicationSignature $SIGNATURE_FILE 
+          --inApplicationSignature $SIGNATURE_FILE \
           --inEncryptionCert $CERT_FILE
         
         rm -rf $TEMP_DIR
