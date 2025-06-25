@@ -60,11 +60,11 @@ jobs:
       run: |
         # 扫描 Docker 镜像并生成 SBOM
         syft scan oci-archive:${{ env.IMAGE_TAR }} \
-          --output cyclonedx-xml=bom.xml
+          --output cyclonedx-xml=target/bom.xml
 
         # 打印部分 SBOM 内容（可选）
         echo "Docker image SBOM contents:"
-        head -n 20 bom.xml
+        head -n 20 target/bom.xml
 
     - name: Set up commander and snb-command
       run: |
