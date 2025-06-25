@@ -92,9 +92,9 @@ jobs:
         snb --version || echo "snb installed successfully"
         
         BOM_FILE=$(find target -name "bom.xml" | head -n 1)
-        
+        # --inApplication ${{ env.IMAGE_TAR }} \
         snb sbom push \
-          --inApplication ${{ env.IMAGE_TAR }} \
+          --inApplication $BOM_FILE \
           --inSBOM $BOM_FILE \
           --inApplicationVersion "${{ github.ref_name }}" \
           --inApplicationSignature $SIGNATURE_FILE \
