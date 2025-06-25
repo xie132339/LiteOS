@@ -73,13 +73,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!--<plugin>
+            <plugin>
                 <groupId>org.cyclonedx</groupId>
                 <artifactId>cyclonedx-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>make-bom</id>
-                        <phase>package</phase> &lt;!&ndash; 在package阶段生成SBOM &ndash;&gt;
+                        <phase>package</phase> <!-- 在package阶段生成SBOM -->
                         <goals>
                             <goal>makeBom</goal>
                         </goals>
@@ -88,7 +88,7 @@
                 <configuration>
                     <outputFormat>xml</outputFormat>
                 </configuration>
-            </plugin>-->
+            </plugin>
 
          <!--   <plugin>
                 <groupId>io.github.pmckeown</groupId>
