@@ -58,7 +58,7 @@ jobs:
 
         # 打印部分 SBOM 内容（可选）
         echo "Docker image SBOM contents:"
-        head -n 20 docker-sbom.xml
+        head -n 20 bom.xml
 
     - name: Set up commander and snb-command
       run: |
@@ -83,7 +83,6 @@ jobs:
         snb --version || echo "snb installed successfully"
         
         BOM_FILE=$(find target -name "bom.xml" | head -n 1)
-        APP_FILE=$(find target -name "*.jar" | head -n 1)
         
         snb sbom push \
           --inApplication ${{ env.IMAGE_TAG }} \
