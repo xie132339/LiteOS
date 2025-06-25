@@ -32,7 +32,9 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn clean package "-Dmaven.test.skip=true"
+      run: | 
+        mvn clean install "-Dmaven.test.skip=true"
+
     # 安装 Syft
     - name: Install Syft
       run: |
@@ -46,7 +48,7 @@ jobs:
         IMAGE_TAG="liteos:${{ github.ref_name }}"
         docker build -t $IMAGE_TAG -f target/docker/Dockerfile .
         
-        # 保存镜像为tar文件（关键修复）
+        # 保存镜像为tar文件
         IMAGE_TAR="${IMAGE_TAG/:/-}.tar"
         docker save -o $IMAGE_TAR $IMAGE_TAG
         
