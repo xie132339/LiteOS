@@ -67,15 +67,15 @@ jobs:
         SIGNATURE_FILE=$TEMP_DIR/app.sig
         
         snb sbom sign \
-        --inApplication=$BOM_FILE \
-        --inSecureKey=$CLIENT_KEY_FILE \
-        --outApplicationSignature=$SIGNATURE_FILE
+        --inApplication $BOM_FILE \
+        --inSecureKey $CLIENT_KEY_FILE \
+        --outApplicationSignature $SIGNATURE_FILE
         
         snb sbom push \
           --inApplication $APP_FILE \
           --inSBOM $BOM_FILE \
           --inApplicationVersion "${{ github.ref_name }}" \
-          --inApplicationSignature $SIGNATURE_FILE 
+          --inApplicationSignature $SIGNATURE_FILE \
           --inEncryptionCert $ENCRYPTION_CERT_FILE
         
         rm -rf $TEMP_DIR
