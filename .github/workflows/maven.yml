@@ -39,32 +39,44 @@ jobs:
         DEST_DIR=/usr/local/bin
         TEMP_DIR=$(mktemp -d)
         ZIP_FILE=$TEMP_DIR/snb.zip
-        wget -O $ZIP_FILE https://github.com/xie132339/LiteOS/archive/refs/tags/v1.0.3.zip
+        wget -O $ZIP_FILE https://github.com/xie132339/LiteOS/archive/refs/tags/v2.0.0.zip
         # 确保目标目录存在
         mkdir -p $DEST_DIR
         # 解压并提取特定文件
         unzip -j $ZIP_FILE "*/snb-linux-amd64" -d $TEMP_DIR
-        unzip -j $ZIP_FILE "*/appsignature.txt" -d $TEMP_DIR
-        unzip -j $ZIP_FILE "*/encryptioncert.txt" -d $TEMP_DIR
         
-        SIGNATURE_FILE=$TEMP_DIR/appsignature.txt
-        CERT_FILE=$TEMP_DIR/encryptioncert.txt
-
         mv $TEMP_DIR/snb-linux-amd64 $DEST_DIR/snb
 
         chmod +x $DEST_DIR/snb
         which snb || echo "snb not found in PATH"
         snb --version || echo "snb installed successfully"
         
+        # 从 Secrets 获取安全密钥并写入文件
+        CLIENT_KEY_FILE=$TEMP_DIR/client-sign-key.pem
+        echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}" > $CLIENT_KEY_FILE
+        
+        # 从 Secrets 获取加密证书并写入文件
+        ENCRYPTION_CERT_FILE=$TEMP_DIR/encryptioncert.txt
+        echo "${{ secrets.PGP_ENC_LEAF_PEM }}" > $ENCRYPTION_CERT_FILE
+        
         BOM_FILE=$(find target -name "bom.xml" | head -n 1)
         APP_FILE=$(find target -name "*.jar" | head -n 1)
+        
+        
+        # 生成应用签名
+        SIGNATURE_FILE=$TEMP_DIR/app.sig
+        
+        snb sbom sign \
+        --inApplication=$BOM_FILE \
+        --inSecureKey=$CLIENT_KEY_FILE \
+        --outApplicationSignature=$SIGNATURE_FILE
         
         snb sbom push \
           --inApplication $APP_FILE \
           --inSBOM $BOM_FILE \
           --inApplicationVersion "${{ github.ref_name }}" \
           --inApplicationSignature $SIGNATURE_FILE 
-          --inEncryptionCert $CERT_FILE
+          --inEncryptionCert $ENCRYPTION_CERT_FILE
         
         rm -rf $TEMP_DIR
 #    - name: Upload JAR to MinIO
