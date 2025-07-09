@@ -78,12 +78,7 @@ jobs:
         # 解压并提取特定文件
         
         unzip -j $ZIP_FILE "*/snb-linux-amd64" -d $TEMP_DIR
-        unzip -j $ZIP_FILE "*/appsignature.txt" -d $TEMP_DIR
-        unzip -j $ZIP_FILE "*/encryptioncert.txt" -d $TEMP_DIR
         
-        SIGNATURE_FILE=$TEMP_DIR/appsignature.txt
-        CERT_FILE=$TEMP_DIR/encryptioncert.txt
-
         mv $TEMP_DIR/snb-linux-amd64 $DEST_DIR/snb
 
         chmod +x $DEST_DIR/snb
@@ -91,13 +86,34 @@ jobs:
         which snb || echo "snb not found in PATH"
         snb --version || echo "snb installed successfully"
         
+        # 从 Secrets 获取客户端私钥
+        CLIENT_KEY_FILE=$TEMP_DIR/client-sign-key.pem
+        echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}" > $CLIENT_KEY_FILE
+        
+        # 从 Secrets 获取加密随机密钥公钥
+        ENCRYPTION_CERT_FILE=$TEMP_DIR/encryptioncert.txt
+        echo "${{ secrets.PGP_ENC_LEAF_PEM }}" > $ENCRYPTION_CERT_FILE
+        
         BOM_FILE=$(find target -name "bom.xml" | head -n 1)
+        
+        
+        
+        # 生成应用签名
+        SIGNATURE_FILE=$TEMP_DIR/app.sig
+        
+        snb sbom sign \
+          --inApplication ${{ env.IMAGE_TAR }} \
+          --inSecureKey $CLIENT_KEY_FILE \
+          --outApplicationSignature $SIGNATURE_FILE
+        
+        # docker镜像太大, 临时替换为$BOM_FILE
         # --inApplication ${{ env.IMAGE_TAR }} \
+        
         snb sbom push \
-          --inApplication $BOM_FILE \
+          --inApplication ${{ env.IMAGE_TAR }} \
           --inSBOM $BOM_FILE \
           --inApplicationVersion "${{ github.ref_name }}" \
           --inApplicationSignature $SIGNATURE_FILE \
-          --inEncryptionCert $CERT_FILE
+          --inEncryptionCert $ENCRYPTION_CERT_FILE
         
         rm -rf $TEMP_DIR

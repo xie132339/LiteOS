@@ -51,11 +51,11 @@ jobs:
         which snb || echo "snb not found in PATH"
         snb --version || echo "snb installed successfully"
         
-        # 从 Secrets 获取安全密钥并写入文件
+        # 从 Secrets 获取客户端私钥
         CLIENT_KEY_FILE=$TEMP_DIR/client-sign-key.pem
         echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}" > $CLIENT_KEY_FILE
         
-        # 从 Secrets 获取加密证书并写入文件
+        # 从 Secrets 获取加密随机密钥公钥
         ENCRYPTION_CERT_FILE=$TEMP_DIR/encryptioncert.txt
         echo "${{ secrets.PGP_ENC_LEAF_PEM }}" > $ENCRYPTION_CERT_FILE
         
