@@ -56,7 +56,7 @@ jobs:
         echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}" > $CLIENT_KEY_FILE
         
         # 从 Secrets 获取加密随机密钥公钥
-        ENCRYPTION_CERT_FILE=$TEMP_DIR/encryptioncert.txt
+        ENCRYPTION_CERT_FILE=$TEMP_DIR/encryptioncert.crt
         echo "${{ secrets.PGP_ENC_LEAF_PEM }}" > $ENCRYPTION_CERT_FILE
         
         BOM_FILE=$(find target -name "bom.xml" | head -n 1)
