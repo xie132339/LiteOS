@@ -32,12 +32,6 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Secret
-      run: |
-        echo "=== 临时打印SBOM_CLIENT_PRIVATE_KEY值 ==="
-        echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}"
-        echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}" > $TEMP_DIR/secret-test.txt
-        cat $TEMP_DIR/secret-test.txt
     - name: Check runtime environment
       run: |
         echo "=== 系统基本信息 ==="
