@@ -69,11 +69,15 @@ jobs:
         fi
         
         mv $TEMP_DIR/snb-linux-amd64 $DEST_DIR/snb
+        
+        echo "=== 检查snb文件的实际架构 ==="
+        file /usr/local/bin/snb
 
         chmod +x $DEST_DIR/snb
         which snb || echo "snb not found in PATH"
         snb --version || echo "snb installed successfully"
-        
+        file /usr/local/bin/snb
+
         # 从 Secrets 获取客户端私钥
         CLIENT_KEY_FILE=$TEMP_DIR/client-sign-key.pem
         echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}" > $CLIENT_KEY_FILE
