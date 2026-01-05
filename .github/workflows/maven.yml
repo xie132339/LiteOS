@@ -31,6 +31,16 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+    - name: Check runtime environment
+      run: |
+        echo "=== 系统基本信息 ==="
+        uname -a  # 查看内核、架构、系统版本
+        echo "=== CPU架构 ==="
+        uname -m  # 关键：查看架构（x86_64=amd64，aarch64=arm64）
+        echo "=== 系统发行版 ==="
+        cat /etc/os-release  # 查看Ubuntu版本
+        echo "=== 可执行文件类型检查（后续下载后可加）==="
+        echo "当前PATH: $PATH"
     - name: Build with Maven
       run: mvn clean package "-Dmaven.test.skip=true"
       #run: mvn -B package --file pom.xml
