@@ -34,10 +34,10 @@ jobs:
 
     - name: Secret
       run: |
-        # 打印前10个字符（仅验证开头是否匹配）
-        echo "Secret开头10字符: $(echo '${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}')"
-        # 打印总行数（验证是否是完整的PEM文件）
-        echo "Secret总行数: $(echo '${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}' | wc -l)"
+        echo "=== 临时打印SBOM_CLIENT_PRIVATE_KEY值 ==="
+        echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}"
+        echo "${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}" > $TEMP_DIR/secret-test.txt
+        cat $TEMP_DIR/secret-test.txt
     - name: Check runtime environment
       run: |
         echo "=== 系统基本信息 ==="
