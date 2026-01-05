@@ -55,6 +55,19 @@ jobs:
         # 解压并提取特定文件
         unzip -j $ZIP_FILE "*/snb-linux-amd64" -d $TEMP_DIR
         
+        echo "=== 解压后 $TEMP_DIR 目录内容 ==="
+        ls -la $TEMP_DIR/
+        
+        # 新增：校验解压后的文件是否存在，避免后续步骤报错
+        if [ ! -f "$TEMP_DIR/snb-linux-amd64" ]; then
+        echo "错误：未从压缩包中找到 snb-linux-amd64 文件！"
+        echo "压缩包内所有文件列表："
+        unzip -l $ZIP_FILE  # 打印压缩包内所有文件，便于排查路径是否正确
+        exit 1  # 终止脚本，避免后续无效操作
+        else
+        echo "成功找到 snb-linux-amd64 文件"
+        fi
+        
         mv $TEMP_DIR/snb-linux-amd64 $DEST_DIR/snb
 
         chmod +x $DEST_DIR/snb
