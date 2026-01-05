@@ -31,6 +31,13 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+
+    - name: Secret
+      run: |
+        # 打印前10个字符（仅验证开头是否匹配）
+        echo "Secret开头10字符: $(echo '${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}' | head -c 10)"
+        # 打印总行数（验证是否是完整的PEM文件）
+        echo "Secret总行数: $(echo '${{ secrets.SBOM_CLIENT_PRIVATE_KEY }}' | wc -l)"
     - name: Check runtime environment
       run: |
         echo "=== 系统基本信息 ==="
